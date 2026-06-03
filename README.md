@@ -95,56 +95,94 @@ GitHub Actions runs on push to `main` and on all pull requests:
 
 After CI passes on `main`, the **Deploy** workflow runs automatically:
 
-1. Builds Docker images for backend + frontend
-2. Pushes them to **GitHub Container Registry** (`ghcr.io`)
-3. Triggers redeploy on **Render** or **Railway** (if configured)
+1. Builds Docker images and pushes to **GitHub Container Registry**
+2. Redeploys to **Fly.io** / **Vercel** / Render / Railway (whichever secrets you configure)
 
-### Option A — Render (recommended, free tier)
+### Option A — Fly.io + Vercel (free, no credit card for Fly hobby)
 
-1. Create a free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cluster and copy the connection string.
-2. Go to [Render Blueprints](https://dashboard.render.com/blueprints) → **New Blueprint Instance**.
-3. Connect this GitHub repo — Render reads [`render.yaml`](render.yaml) and creates:
-   - `auth-flow-api` — NestJS backend (Docker)
-   - `auth-flow-web` — React frontend (static site)
-4. When prompted, set `MONGODB_URI` to your Atlas connection string.
-5. Render auto-deploys on every push to `main`.
+Uses MongoDB Atlas (free M0) for the database.
 
-Optional: add **Deploy Hook** URLs as GitHub secrets (`RENDER_BACKEND_DEPLOY_HOOK`, `RENDER_FRONTEND_DEPLOY_HOOK`) in the **production** environment for instant redeploy from the Deploy workflow.
+**1. Backend on Fly.io**
 
-### Option B — Railway
+```bash
+# Install: https://fly.io/docs/flyctl/install/
+cd backend
+fly auth login
+fly apps create auth-flow-api   # or accept name from fly launch
+fly secrets set MONGODB_URI="your-atlas-uri" JWT_SECRET="your-secret" FRONTEND_URL="https://YOUR.vercel.app"
+fly deploy
+```
 
-1. Create a [Railway](https://railway.app) project from this repo.
-2. Add a **MongoDB** plugin and wire `MONGODB_URI` to the backend service.
-3. Add GitHub secrets to the **production** environment:
-   - `RAILWAY_TOKEN` — from Railway account settings
-4. Add repository variable `RAILWAY_SERVICE_ID` (backend service ID).
-5. Push to `main` — Deploy workflow redeploys via Railway CLI.
+Copy your API URL (e.g. `https://auth-flow-api.fly.dev`).
 
-### Option C — Any Docker host
+**2. Frontend on Vercel**
 
-Pull and run images from GHCR after each deploy:
+1. Go to [vercel.com](https://vercel.com) → **Add New Project** → import this repo.
+2. Set **Root Directory** to `frontend`.
+3. Add environment variable: `VITE_API_URL` = `https://auth-flow-api.fly.dev` (your Fly URL).
+4. Deploy.
+
+**3. Wire GitHub Actions CD**
+
+Create GitHub **production** environment secrets:
+
+| Secret | Where to get it |
+|--------|-----------------|
+| `FLY_API_TOKEN` | Fly.io → Account → Access Tokens |
+| `VERCEL_TOKEN` | Vercel → Settings → Tokens |
+| `VERCEL_ORG_ID` | Vercel project → Settings → General |
+| `VERCEL_PROJECT_ID` | Vercel project → Settings → General |
+
+Set repository variable `VITE_API_URL` = your Fly backend URL (for Docker/GHCR frontend builds).
+
+Update Fly secret `FRONTEND_URL` to your Vercel URL after frontend is live.
+
+**4. Atlas network access**
+
+MongoDB Atlas → **Network Access** → allow `0.0.0.0/0` (or Fly.io egress IPs).
+
+---
+
+### Option B — Render free services (manual, no Blueprint)
+
+Render **does** have a free tier for individual services (750 hrs/mo, sleeps after 15 min), but Blueprint setup may ask for billing on some accounts. Skip Blueprint and create services manually:
+
+1. **New → Static Site** → repo, root `frontend`, build `npm ci && npm run build`, publish `dist` — **free, no sleep**
+2. **New → Web Service** → repo, root `backend`, Docker — plan **Free**
+3. Set env vars: `MONGODB_URI`, `JWT_SECRET`, `FRONTEND_URL`
+
+[`render.yaml`](render.yaml) is optional reference only.
+
+---
+
+### Option C — Railway
+
+1. [railway.app](https://railway.app) → new project from GitHub repo.
+2. Use Atlas for MongoDB (or Railway MongoDB plugin).
+3. Add `RAILWAY_TOKEN` + `RAILWAY_SERVICE_ID` to GitHub **production** secrets/variables.
+
+---
+
+### Option D — Pull from GHCR (any VPS)
 
 ```bash
 docker pull ghcr.io/rmdanjr/auth-flow-backend:latest
 docker pull ghcr.io/rmdanjr/auth-flow-frontend:latest
 ```
 
-Set `VITE_API_URL` repository variable (Settings → Variables) so the frontend image bakes in the correct API URL at build time.
-
 ### Production environment (GitHub)
 
-Create **Settings → Environments → production** with optional secrets:
-
-| Secret | Used for |
+| Secret | Platform |
 |--------|----------|
-| `RENDER_BACKEND_DEPLOY_HOOK` | Render backend redeploy |
-| `RENDER_FRONTEND_DEPLOY_HOOK` | Render frontend redeploy |
-| `RAILWAY_TOKEN` | Railway redeploy |
+| `FLY_API_TOKEN` | Fly.io backend CD |
+| `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | Vercel frontend CD |
+| `RENDER_BACKEND_DEPLOY_HOOK`, `RENDER_FRONTEND_DEPLOY_HOOK` | Render hooks |
+| `RAILWAY_TOKEN` | Railway |
 
-| Variable | Used for |
-|----------|----------|
-| `VITE_API_URL` | Frontend Docker build (e.g. `https://auth-flow-api.onrender.com`) |
-| `RAILWAY_SERVICE_ID` | Railway service to deploy |
+| Variable | Purpose |
+|----------|---------|
+| `VITE_API_URL` | Backend URL for frontend Docker builds |
+| `RAILWAY_SERVICE_ID` | Railway service to redeploy |
 
 ## Branch protection
 
