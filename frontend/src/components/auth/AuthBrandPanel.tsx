@@ -1,17 +1,10 @@
-import { AUTH_FEATURES } from './auth.constants';
+import { AUTH_FEATURES, BRAND_PANEL_OVERLAY_STYLE } from './auth.constants';
 
 export function AuthBrandPanel() {
   return (
     <section className="relative flex flex-1 flex-col justify-between p-8 sm:p-10 lg:p-12">
       <div className="absolute inset-0 eg-gradient-orange" aria-hidden />
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 20% 80%, rgba(255,255,255,0.35) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 40%)',
-        }}
-        aria-hidden
-      />
+      <div className="absolute inset-0 opacity-20" style={BRAND_PANEL_OVERLAY_STYLE} aria-hidden />
 
       <div className="relative text-white">
         <p className="text-xs font-semibold uppercase tracking-wider text-white/75">

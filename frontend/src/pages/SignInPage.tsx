@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { isAxiosError } from 'axios';
 import { signin } from '../api/auth';
 import { AuthLayout } from '../components/layout/AuthLayout';
 import { Field } from '../components/ui/Field';
+import { getApiErrorMessage } from '../lib/apiError';
 import {
   alertErrorClassName,
   buttonClassName,
@@ -32,14 +32,7 @@ export function SignInPage() {
       await signin(data);
       navigate('/app');
     } catch (error) {
-      if (isAxiosError(error)) {
-        setApiError(
-          (error.response?.data as { message?: string })?.message ??
-            'Invalid credentials. Please try again.',
-        );
-        return;
-      }
-      setApiError('Invalid credentials. Please try again.');
+      setApiError(getApiErrorMessage(error, 'Invalid credentials. Please try again.'));
     }
   };
 

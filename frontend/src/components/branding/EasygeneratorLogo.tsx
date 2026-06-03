@@ -8,6 +8,8 @@ export function EasygeneratorLogo({ className = '' }: EasygeneratorLogoProps) {
       <img
         src="/easygenerator-logo.png"
         alt="Easygenerator"
+        width={262}
+        height={93}
         className="h-10 w-auto sm:h-11"
       />
     </span>

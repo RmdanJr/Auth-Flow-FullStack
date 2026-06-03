@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { isAxiosError } from 'axios';
 import { signup } from '../api/auth';
 import { AuthLayout } from '../components/layout/AuthLayout';
 import { Field } from '../components/ui/Field';
+import { getApiErrorMessage } from '../lib/apiError';
 import {
   alertErrorClassName,
   buttonClassName,
@@ -32,14 +32,7 @@ export function SignUpPage() {
       await signup(data);
       navigate('/app');
     } catch (error) {
-      if (isAxiosError(error)) {
-        setApiError(
-          (error.response?.data as { message?: string })?.message ??
-            'Unable to create account. Please try again.',
-        );
-        return;
-      }
-      setApiError('Unable to create account. Please try again.');
+      setApiError(getApiErrorMessage(error, 'Unable to create account. Please try again.'));
     }
   };
 
