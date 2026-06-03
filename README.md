@@ -67,7 +67,7 @@ npm run build
 
 ## SonarCloud setup (required for CI)
 
-CI always runs a **sonarcloud** job. Configure once before pushing:
+CI always runs a **SonarCloud · Quality Gate** job. Configure once before pushing:
 
 1. Sign in at [sonarcloud.io](https://sonarcloud.io) with GitHub.
 2. **Analyze new project** → select this repository → **With GitHub Actions**.
@@ -85,11 +85,11 @@ CI always runs a **sonarcloud** job. Configure once before pushing:
 
 GitHub Actions runs on every push to `main` and on all pull requests:
 
-- **backend** — lint, unit tests, e2e tests
-- **frontend** — lint, build
-- **sonarcloud** — SonarCloud analysis + quality gate (requires `SONAR_TOKEN`)
-- **deploy-backend** — push to `main` only: GHCR image + Fly.io (`auth-flow-api`)
-- **deploy-frontend** — push to `main` only: GHCR image + Fly.io (`auth-flow-web`) + backend CORS sync
+- **Backend · Lint, Test & Build** — lint, unit tests, e2e tests, production build
+- **Frontend · Lint, Test & Build** — lint, TypeScript check, production build
+- **SonarCloud · Quality Gate** — SonarCloud analysis (requires `SONAR_TOKEN`)
+- **Deploy · Backend (Fly.io)** — push to `main` only: GHCR image + Fly.io (`auth-flow-api`)
+- **Deploy · Frontend (Fly.io)** — push to `main` only: GHCR image + Fly.io (`auth-flow-web`) + backend CORS sync
 
 ![CI](https://github.com/RmdanJr/Auth-Flow-FullStack/actions/workflows/ci.yml/badge.svg)
 
@@ -145,7 +145,7 @@ docker pull ghcr.io/rmdanjr/auth-flow-frontend:latest
 After CI runs once, configure **Settings → Branches → main**:
 
 - Require pull request before merging
-- Require status checks: `backend`, `frontend`, `sonarcloud`
+- Require status checks: `Backend · Lint, Test & Build`, `Frontend · Lint, Test & Build`, `SonarCloud · Quality Gate`
 - Require branches to be up to date
 
 Optional CLI setup:
@@ -154,9 +154,9 @@ Optional CLI setup:
 gh api repos/{owner}/{repo}/branches/main/protection \
   --method PUT \
   --field required_status_checks[strict]=true \
-  --field required_status_checks[checks][][context]=backend \
-  --field required_status_checks[checks][][context]=frontend \
-  --field required_status_checks[checks][][context]=sonarcloud \
+  --field required_status_checks[checks][][context]="Backend · Lint, Test & Build" \
+  --field required_status_checks[checks][][context]="Frontend · Lint, Test & Build" \
+  --field required_status_checks[checks][][context]="SonarCloud · Quality Gate" \
   --field enforce_admins=true \
   --field required_pull_request_reviews[required_approving_review_count]=0 \
   --field restrictions=null
