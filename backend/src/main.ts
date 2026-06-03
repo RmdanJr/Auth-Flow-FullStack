@@ -1,14 +1,17 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { MongoExceptionFilter } from './common/filters/mongo-exception.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ACCESS_TOKEN_COOKIE } from './auth/constants';
 
 async function bootstrap() {
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
+
   const configService = app.get(ConfigService);
 
   app.use(cookieParser());
@@ -20,6 +23,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new MongoExceptionFilter());
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.enableCors({
     origin: configService.getOrThrow<string>('FRONTEND_URL'),
@@ -47,6 +51,8 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');
+  logger.log(`Auth Flow API listening on 0.0.0.0:${port}`);
+  logger.log(`Swagger UI available at /api/docs`);
 }
 
 void bootstrap();

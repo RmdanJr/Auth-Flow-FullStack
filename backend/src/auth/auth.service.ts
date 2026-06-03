@@ -109,6 +109,7 @@ export class AuthService {
   }
 
   logout(response: Response): void {
+    this.logger.log('User logged out');
     this.clearAuthCookie(response);
   }
 
