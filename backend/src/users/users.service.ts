@@ -7,7 +7,9 @@ import { User, UserDocument } from './schemas/user.schema';
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async create(data: Pick<User, 'email' | 'name' | 'password'>): Promise<UserDocument> {
+  async create(
+    data: Pick<User, 'email' | 'name' | 'password'>,
+  ): Promise<UserDocument> {
     return this.userModel.create(data);
   }
 
@@ -16,7 +18,10 @@ export class UsersService {
   }
 
   async findByEmailWithPassword(email: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({ email: email.toLowerCase() }).select('+password').exec();
+    return this.userModel
+      .findOne({ email: email.toLowerCase() })
+      .select('+password')
+      .exec();
   }
 
   async findById(id: string): Promise<UserDocument | null> {

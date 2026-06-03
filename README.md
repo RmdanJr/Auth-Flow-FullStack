@@ -65,23 +65,31 @@ npm run lint
 npm run build
 ```
 
+## SonarCloud setup (required for CI)
+
+CI always runs a **sonarcloud** job. Configure once before pushing:
+
+1. Sign in at [sonarcloud.io](https://sonarcloud.io) with GitHub.
+2. **Analyze new project** → select this repository → **With GitHub Actions**.
+3. Copy **organization key** and **project key** into `sonar-project.properties`:
+   ```properties
+   sonar.organization=YOUR_ORG_KEY
+   sonar.projectKey=YOUR_PROJECT_KEY
+   ```
+4. In SonarCloud: **My Account → Security → Generate Token**.
+5. On GitHub: repo **Settings → Secrets → Actions** → add `SONAR_TOKEN` with that token.
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=YOUR_PROJECT_KEY&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=YOUR_PROJECT_KEY)
+
 ## CI/CD
 
-GitHub Actions runs on push to `main` and on pull requests:
+GitHub Actions runs on push to `main` and on all pull requests:
 
 - **backend** — lint, unit tests, e2e tests
 - **frontend** — lint, build
-- **sonarcloud** — static analysis + quality gate
+- **sonarcloud** — SonarCloud analysis + quality gate (requires `SONAR_TOKEN`)
 
 ![CI](https://github.com/YOUR_USER/auth-flow-fullstack/actions/workflows/ci.yml/badge.svg)
-
-## SonarCloud
-
-1. Import the repo at [sonarcloud.io](https://sonarcloud.io)
-2. Update `sonar.organization` and `sonar.projectKey` in `sonar-project.properties`
-3. Add `SONAR_TOKEN` as a GitHub repository secret
-
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=YOUR_PROJECT_KEY&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=YOUR_PROJECT_KEY)
 
 ## Branch protection
 

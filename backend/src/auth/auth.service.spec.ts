@@ -48,12 +48,19 @@ describe('AuthService', () => {
   it('hashes and verifies passwords', async () => {
     const hash = await authService.hashPassword('Secure1!');
     expect(hash).not.toBe('Secure1!');
-    await expect(authService.verifyPassword('Secure1!', hash)).resolves.toBe(true);
-    await expect(authService.verifyPassword('WrongPass1!', hash)).resolves.toBe(false);
+    await expect(authService.verifyPassword('Secure1!', hash)).resolves.toBe(
+      true,
+    );
+    await expect(authService.verifyPassword('WrongPass1!', hash)).resolves.toBe(
+      false,
+    );
   });
 
   it('signs JWT payload', () => {
-    const token = authService.signToken({ sub: 'user-id', email: 'user@example.com' });
+    const token = authService.signToken({
+      sub: 'user-id',
+      email: 'user@example.com',
+    });
     expect(token).toBe('signed-token');
     expect(jwtServiceMock.sign).toHaveBeenCalledWith({
       sub: 'user-id',

@@ -73,7 +73,10 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const token = this.signToken({ sub: user._id.toString(), email: user.email });
+    const token = this.signToken({
+      sub: user._id.toString(),
+      email: user.email,
+    });
     this.setAuthCookie(response, token);
 
     this.logger.log(`Signup successful for ${dto.email}`);
@@ -95,7 +98,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const token = this.signToken({ sub: user._id.toString(), email: user.email });
+    const token = this.signToken({
+      sub: user._id.toString(),
+      email: user.email,
+    });
     this.setAuthCookie(response, token);
 
     this.logger.log(`Signin successful for ${dto.email}`);
