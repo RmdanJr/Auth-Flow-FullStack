@@ -120,11 +120,12 @@ fly deploy --build-arg VITE_API_URL=https://auth-flow-api.fly.dev
 
 **GitHub Actions CD**
 
-Add `FLY_API_TOKEN` to the **production** environment (Settings → Environments → production → Environment secrets):
+Add these to **Settings → Environments → production → Environment secrets**:
 
-| Secret | Where to get it |
-|--------|-----------------|
-| `FLY_API_TOKEN` | Fly.io → Account → Access Tokens → **Deploy Token** |
+| Secret | Fly app | Where to get it |
+|--------|---------|-----------------|
+| `FLY_API_TOKEN_API` | `auth-flow-api` | Fly.io → **auth-flow-api** → Tokens → Deploy token |
+| `FLY_API_TOKEN_WEB` | `auth-flow-web` | Fly.io → **auth-flow-web** → Tokens → Deploy token |
 
 Every push to `main` runs tests, SonarCloud, then deploys both Fly apps automatically.
 
