@@ -1,7 +1,9 @@
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { useState } from 'react';
 import { logout, type User } from '../api/auth';
-import { buttonClassName } from '../components/AuthLayout';
+import { AppHeader } from '../components/layout/AppHeader';
+import { UserAvatar } from '../components/ui/UserAvatar';
+import { buttonSecondaryClassName } from '../lib/formStyles';
 
 interface AppContext {
   user: User | null;
@@ -22,20 +24,50 @@ export function AppPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-lg rounded-2xl border border-slate-700/60 bg-slate-900/80 p-10 text-center shadow-2xl backdrop-blur">
-        <p className="text-sm font-semibold uppercase tracking-widest text-sky-400">Auth Flow</p>
-        <h1 className="mt-4 text-3xl font-bold text-white">Welcome to the application.</h1>
-        {user && <p className="mt-3 text-slate-300">Signed in as {user.name}</p>}
-        <button
-          type="button"
-          onClick={handleLogout}
-          disabled={loading}
-          className={`${buttonClassName} mt-8 max-w-xs`}
-        >
-          {loading ? 'Signing out...' : 'Log out'}
-        </button>
-      </div>
+    <div className="app-shell min-h-screen bg-[#f5f7fb]">
+      <AppHeader />
+
+      <main className="mx-auto w-full max-w-7xl px-5 py-12 sm:px-8 lg:px-12 sm:py-16">
+        <div className="animate-fade-up">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#848fa3]">
+            Workspace
+          </p>
+          <h1 className="mt-2 text-3xl font-semibold text-[#363e4e] sm:text-4xl">
+            Welcome to the application.
+          </h1>
+        </div>
+
+        <div className="animate-fade-up-delay mt-10 overflow-hidden rounded-2xl border border-[#c3cad7]/80 bg-white shadow-[4px_4px_28px_rgba(192,192,192,0.18)]">
+          <div className="h-1 w-full eg-gradient-orange" />
+
+          <div className="flex flex-col gap-8 p-8 sm:flex-row sm:items-center sm:p-10">
+            {user && <UserAvatar name={user.name} />}
+
+            <div className="flex-1">
+              {user && (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#848fa3]">
+                    Signed in as
+                  </p>
+                  <p className="mt-1 text-2xl font-semibold text-[#363e4e]">{user.name}</p>
+                  <p className="mt-1 text-sm text-[#848fa3]">{user.email}</p>
+                </>
+              )}
+            </div>
+
+            <div className="flex shrink-0 sm:items-end">
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loading}
+                className={buttonSecondaryClassName}
+              >
+                {loading ? 'Signing out...' : 'Log out'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

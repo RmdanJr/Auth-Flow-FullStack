@@ -4,7 +4,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
 import { signup } from '../api/auth';
-import { AuthLayout, Field, buttonClassName, inputClassName } from '../components/AuthLayout';
+import { AuthLayout } from '../components/layout/AuthLayout';
+import { Field } from '../components/ui/Field';
+import {
+  alertErrorClassName,
+  buttonClassName,
+  inputClassName,
+  linkClassName,
+} from '../lib/formStyles';
 import { signupSchema, type SignupFormData } from '../lib/validation';
 
 export function SignUpPage() {
@@ -43,7 +50,7 @@ export function SignUpPage() {
       footer={
         <>
           Already have an account?{' '}
-          <Link to="/signin" className="font-medium text-sky-400 hover:text-sky-300">
+          <Link to="/signin" className={linkClassName}>
             Sign in
           </Link>
         </>
@@ -75,16 +82,12 @@ export function SignUpPage() {
             className={inputClassName}
             {...register('password')}
           />
-          <p className="text-xs text-slate-500">
+          <p className="text-xs leading-relaxed text-[#848fa3]">
             At least 8 characters with one letter, one number, and one special character.
           </p>
         </Field>
 
-        {apiError && (
-          <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
-            {apiError}
-          </div>
-        )}
+        {apiError && <div className={alertErrorClassName}>{apiError}</div>}
 
         <button type="submit" disabled={isSubmitting} className={buttonClassName}>
           {isSubmitting ? 'Creating account...' : 'Sign up'}

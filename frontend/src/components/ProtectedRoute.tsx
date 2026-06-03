@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getMe, type User } from '../api/auth';
+import { LoadingScreen } from './ui/LoadingScreen';
 
 export function ProtectedRoute() {
   const location = useLocation();
@@ -31,11 +32,7 @@ export function ProtectedRoute() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-slate-300">Loading...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!authenticated) {
