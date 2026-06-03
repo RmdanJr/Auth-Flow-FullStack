@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
 
 interface AuthLayoutProps {
   title: string;
@@ -21,15 +20,6 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
         </div>
         {children}
         {footer && <div className="mt-6 text-center text-sm text-slate-400">{footer}</div>}
-        <p className="mt-8 text-center text-xs text-slate-500">
-          <Link to="/signin" className="hover:text-sky-400">
-            Sign in
-          </Link>
-          {' · '}
-          <Link to="/signup" className="hover:text-sky-400">
-            Sign up
-          </Link>
-        </p>
       </div>
     </div>
   );

@@ -83,6 +83,7 @@ jobs:
     name: sonarcloud
     runs-on: ubuntu-latest
     needs: [backend, frontend]
+    environment: SONAR
 
     steps:
       - uses: actions/checkout@v4

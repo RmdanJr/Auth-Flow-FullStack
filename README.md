@@ -73,13 +73,13 @@ CI always runs a **sonarcloud** job. Configure once before pushing:
 2. **Analyze new project** → select this repository → **With GitHub Actions**.
 3. Copy **organization key** and **project key** into `sonar-project.properties`:
    ```properties
-   sonar.organization=YOUR_ORG_KEY
-   sonar.projectKey=YOUR_PROJECT_KEY
+   sonar.organization=rmdanjr
+   sonar.projectKey=RmdanJr_Auth-Flow-FullStack
    ```
 4. In SonarCloud: **My Account → Security → Generate Token**.
-5. On GitHub: repo **Settings → Secrets → Actions** → add `SONAR_TOKEN` with that token.
+5. On GitHub: repo **Settings → Environments → SONAR → Environment secrets** → add `SONAR_TOKEN` (use a secret, not a variable).
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=YOUR_PROJECT_KEY&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=YOUR_PROJECT_KEY)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=RmdanJr_Auth-Flow-FullStack&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=RmdanJr_Auth-Flow-FullStack)
 
 ## CI/CD
 
