@@ -1,24 +1,27 @@
 import { INestApplication } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder } from '@nestjs/swagger';
 import { setupSwagger } from './swagger.config';
 
-jest.mock('@nestjs/swagger', () => {
-  const builder = {
+const mockCreateDocument = jest.fn().mockReturnValue({ paths: {} });
+const mockSetup = jest.fn();
+
+jest.mock('@nestjs/swagger', () => ({
+  DocumentBuilder: jest.fn(() => ({
     setTitle: jest.fn().mockReturnThis(),
     setDescription: jest.fn().mockReturnThis(),
     setVersion: jest.fn().mockReturnThis(),
     addCookieAuth: jest.fn().mockReturnThis(),
     build: jest.fn().mockReturnValue({ openapi: '3.0.0' }),
-  };
-
-  return {
-    DocumentBuilder: jest.fn(() => builder),
-    SwaggerModule: {
-      createDocument: jest.fn().mockReturnValue({ paths: {} }),
-      setup: jest.fn(),
+  })),
+  SwaggerModule: {
+    get createDocument() {
+      return mockCreateDocument;
     },
-  };
-});
+    get setup() {
+      return mockSetup;
+    },
+  },
+}));
 
 describe('setupSwagger', () => {
   it('builds and mounts the swagger document', () => {
@@ -27,11 +30,11 @@ describe('setupSwagger', () => {
     setupSwagger(app);
 
     expect(DocumentBuilder).toHaveBeenCalled();
-    expect(SwaggerModule.createDocument).toHaveBeenCalledWith(
+    expect(mockCreateDocument).toHaveBeenCalledWith(
       app,
       expect.objectContaining({ openapi: '3.0.0' }),
     );
-    expect(SwaggerModule.setup).toHaveBeenCalledWith(
+    expect(mockSetup).toHaveBeenCalledWith(
       'api/docs',
       app,
       expect.objectContaining({ paths: {} }),
