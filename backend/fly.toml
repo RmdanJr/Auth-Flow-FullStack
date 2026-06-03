@@ -1,7 +1,7 @@
 # fly.toml — backend API on Fly.io free tier
 # Run once locally: cd backend && fly launch --no-deploy
 
-app = 'auth-flow-api'
+app = 'auth-flow-fullstack'
 primary_region = 'ams'
 
 [build]
