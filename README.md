@@ -83,106 +83,61 @@ CI always runs a **sonarcloud** job. Configure once before pushing:
 
 ## CI/CD
 
-GitHub Actions runs on push to `main` and on all pull requests:
+GitHub Actions runs on every push to `main` and on all pull requests:
 
 - **backend** — lint, unit tests, e2e tests
 - **frontend** — lint, build
 - **sonarcloud** — SonarCloud analysis + quality gate (requires `SONAR_TOKEN`)
+- **deploy-backend** — push to `main` only: GHCR image + Fly.io (`auth-flow-api`)
+- **deploy-frontend** — push to `main` only: GHCR image + Fly.io (`auth-flow-web`) + backend CORS sync
 
 ![CI](https://github.com/RmdanJr/Auth-Flow-FullStack/actions/workflows/ci.yml/badge.svg)
 
-## Deployment (automatic CD)
+## Deployment (Fly.io)
 
-After CI passes on `main`, the **Deploy** workflow runs automatically:
+Uses MongoDB Atlas (free M0) for the database. Both apps run on Fly.io.
 
-1. Builds Docker images and pushes to **GitHub Container Registry**
-2. Redeploys to **Fly.io** / **Vercel** / Render / Railway (whichever secrets you configure)
+| App | URL |
+|-----|-----|
+| Backend (`auth-flow-api`) | https://auth-flow-api.fly.dev |
+| Frontend (`auth-flow-web`) | https://auth-flow-web.fly.dev |
 
-### Option A — Fly.io + Vercel (free, no credit card for Fly hobby)
-
-Uses MongoDB Atlas (free M0) for the database.
-
-**1. Backend on Fly.io**
+**Manual first-time setup**
 
 ```bash
-# Install: https://fly.io/docs/flyctl/install/
+# Backend
 cd backend
 fly auth login
-fly apps create auth-flow-api   # or accept name from fly launch
-fly secrets set MONGODB_URI="your-atlas-uri" JWT_SECRET="your-secret" FRONTEND_URL="https://YOUR.vercel.app"
+fly apps create auth-flow-api
+fly secrets set MONGODB_URI="your-atlas-uri" JWT_SECRET="your-secret" FRONTEND_URL="https://auth-flow-web.fly.dev"
 fly deploy
+
+# Frontend
+cd frontend
+fly apps create auth-flow-web
+fly deploy --build-arg VITE_API_URL=https://auth-flow-api.fly.dev
 ```
 
-Copy your API URL (e.g. `https://auth-flow-api.fly.dev`).
+**GitHub Actions CD**
 
-**2. Frontend on Vercel**
-
-1. Go to [vercel.com](https://vercel.com) → **Add New Project** → import this repo.
-2. Set **Root Directory** to `frontend`.
-3. Add environment variable: `VITE_API_URL` = `https://auth-flow-api.fly.dev` (your Fly URL).
-4. Deploy.
-
-**3. Wire GitHub Actions CD**
-
-Create GitHub **production** environment secrets:
+Add `FLY_API_TOKEN` to the **production** environment (Settings → Environments → production → Environment secrets):
 
 | Secret | Where to get it |
 |--------|-----------------|
-| `FLY_API_TOKEN` | Fly.io → Account → Access Tokens |
-| `VERCEL_TOKEN` | Vercel → Settings → Tokens |
-| `VERCEL_ORG_ID` | Vercel project → Settings → General |
-| `VERCEL_PROJECT_ID` | Vercel project → Settings → General |
+| `FLY_API_TOKEN` | Fly.io → Account → Access Tokens → **Deploy Token** |
 
-Set repository variable `VITE_API_URL` = your Fly backend URL (for Docker/GHCR frontend builds).
+Every push to `main` runs tests, SonarCloud, then deploys both Fly apps automatically.
 
-Update Fly secret `FRONTEND_URL` to your Vercel URL after frontend is live.
-
-**4. Atlas network access**
+**Atlas network access**
 
 MongoDB Atlas → **Network Access** → allow `0.0.0.0/0` (or Fly.io egress IPs).
 
----
-
-### Option B — Render free services (manual, no Blueprint)
-
-Render **does** have a free tier for individual services (750 hrs/mo, sleeps after 15 min), but Blueprint setup may ask for billing on some accounts. Skip Blueprint and create services manually:
-
-1. **New → Static Site** → repo, root `frontend`, build `npm ci && npm run build`, publish `dist` — **free, no sleep**
-2. **New → Web Service** → repo, root `backend`, Docker — plan **Free**
-3. Set env vars: `MONGODB_URI`, `JWT_SECRET`, `FRONTEND_URL`
-
-[`render.yaml`](render.yaml) is optional reference only.
-
----
-
-### Option C — Railway
-
-1. [railway.app](https://railway.app) → new project from GitHub repo.
-2. Use Atlas for MongoDB (or Railway MongoDB plugin).
-3. Add `RAILWAY_TOKEN` + `RAILWAY_SERVICE_ID` to GitHub **production** secrets/variables.
-
----
-
-### Option D — Pull from GHCR (any VPS)
+### Pull from GHCR (optional)
 
 ```bash
 docker pull ghcr.io/rmdanjr/auth-flow-backend:latest
 docker pull ghcr.io/rmdanjr/auth-flow-frontend:latest
 ```
-
-### Production environment (GitHub)
-
-| Secret | Platform |
-|--------|----------|
-| `FLY_API_TOKEN` | Fly.io backend CD |
-| `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | Vercel frontend CD |
-| `RENDER_BACKEND_DEPLOY_HOOK`, `RENDER_FRONTEND_DEPLOY_HOOK` | Render hooks |
-| `RAILWAY_TOKEN` | Railway |
-
-| Variable | Purpose |
-|----------|---------|
-| `VITE_API_URL` | Backend URL for frontend Docker builds |
-| `RAILWAY_SERVICE_ID` | Railway service to redeploy |
 
 ## Branch protection
 
@@ -214,8 +169,7 @@ auth-flow-fullstack/
 ├── frontend/         React + Vite app
 ├── docker-compose.yml
 ├── .github/workflows/
-│   ├── ci.yml          # Test + SonarCloud
-│   └── deploy.yml      # CD after CI on main
+│   └── ci.yml            # Test, SonarCloud, deploy to Fly on push to main
 ├── render.yaml         # Render Blueprint (auto-deploy)
 └── sonar-project.properties
 ```

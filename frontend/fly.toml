@@ -1,0 +1,23 @@
+# fly.toml — frontend SPA on Fly.io (nginx)
+# Run once locally: cd frontend && fly apps create auth-flow-web && fly deploy
+
+app = 'auth-flow-web'
+primary_region = 'ams'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+  [build.args]
+    VITE_API_URL = 'https://auth-flow-api.fly.dev'
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  memory = '256mb'
+  cpu_kind = 'shared'
+  cpus = 1
