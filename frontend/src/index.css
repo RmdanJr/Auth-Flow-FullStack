@@ -34,10 +34,6 @@ body {
   background-color: #ffffff;
 }
 
-.app-shell--auth {
-  background: linear-gradient(135deg, #ffffff 0%, var(--color-eg-surface) 100%);
-}
-
 @keyframes fade-up {
   from {
     opacity: 0;

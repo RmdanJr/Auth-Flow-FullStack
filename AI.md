@@ -1,40 +1,36 @@
 # AI Usage Disclosure
 
-This project was built with AI assistance (Cursor Agent). Below is an honest account of what was AI-assisted, what worked, and what required manual correction.
+Built with AI assistance (Cursor Agent). Below follows the structure requested in the assessment.
 
-## AI-assisted areas
+## AI-assisted parts
 
-| Area | AI contribution |
-|------|-----------------|
-| Project scaffolding | NestJS and Vite project structure, module layout |
-| Auth logic | JWT cookie flow, bcrypt hashing, Passport strategy |
-| Validation | DTO class-validator rules and matching Zod schemas |
-| Swagger | OpenAPI decorators and cookie auth documentation |
-| Frontend UI | Tailwind layout, form components, protected routes |
-| Docker | Compose file, multi-stage Dockerfiles, nginx config |
-| Tests | AuthService unit tests, Supertest e2e flow |
-| CI/CD | GitHub Actions workflow with MongoDB service container |
-| SonarCloud | `sonar-project.properties` configuration |
-| Documentation | README structure and setup instructions |
+- **Backend:** NestJS/MongoDB scaffold, auth module (signup/signin/logout, bcrypt, JWT httpOnly cookies, protected `GET /users/me`), DTO validation, Swagger, logging, exception filter, unit and e2e tests
+- **Frontend:** React/Vite/TypeScript scaffold, sign-in/sign-up forms (Zod + React Hook Form), protected route, Easygenerator-themed UI
+- **DevOps & docs:** Docker Compose, Fly.io deploy config, GitHub Actions CI/CD, SonarCloud setup, README
 
-## Effective prompts
+## Effective prompts and approaches
 
-- Providing the full PDF task spec upfront gave accurate requirements coverage.
-- Iterating on the plan (CI/CD, SonarCloud, Swagger, Docker Compose, branch protection) before implementation avoided rework.
-- "Commit each step with messages under 50 chars" produced a clean git history.
+- **Attach the PDF and state the stack explicitly:**  
+  *“Implement the attached Full Stack Test Task. Frontend: React + Vite + TypeScript. Backend: NestJS + MongoDB. Include signup/signin/app pages, field validation from the PDF, one protected endpoint, README, and AI.md.”*
 
-## Manual corrections and decisions
+- **Extend the plan one topic at a time before coding:**  
+  *“Add GitHub Actions: lint, test, and build for backend and frontend on push and PR.”*  
+  *“Add SonarCloud to CI with sonar-project.properties and a quality gate.”*  
+  *“Add Swagger for auth endpoints with httpOnly cookie JWT documented.”*
 
-- **Cookie-based JWT** instead of localStorage — AI suggested both; chose cookies for XSS safety.
-- **TypeScript `import type` for Express Response** — required fix for NestJS decorator metadata with `isolatedModules`.
-- **`ArgumentsHost` import** — restored after a refactor dropped it from the Mongo exception filter.
-- **Signup HTTP 201** — ensured e2e tests match NestJS default POST status code.
-- **SonarCloud placeholders** — `your-sonarcloud-org` / `your-sonarcloud-project-key` must be replaced after repo import.
-- **Branch protection** — documented in README; must be enabled manually in GitHub settings after first CI run.
-- **Generic 401 on signin** — kept intentionally to avoid email enumeration.
+- **Give UI requests with constraints, not adjectives:**  
+  *“Restyle sign-in/sign-up to match easygenerator.com (fonts, colors, logo). Do not change validation, API calls, or routes.”*
 
-## What I owned
+- **Describe production bugs with evidence:**  
+  *“Login works on localhost but fails on Fly.io: POST /auth/signin returns 200 but no access_token cookie is stored. Frontend: auth-flow-web.fly.dev, API: auth-flow-api.fly.dev.”*  
+  *“SonarCloud new-code coverage is 43% (needs 80%). Add tests for backend config modules and adjust sonar-project.properties.”*
 
-- Reviewed all generated auth and security code before committing.
-- Verified builds, unit tests, and e2e tests pass locally.
-- Chose monorepo layout and implementation order from the plan.
+## Corrections, rework, and own decisions
+
+- **JWT in httpOnly cookies** (not localStorage) — AI suggested both; chose cookies for XSS safety
+- **Production cookies:** `SameSite=None; Secure` — required after deploy because frontend and API are on separate Fly.io domains; `SameSite=Lax` worked locally only
+- **TypeScript fixes:** `import type` for Express `Response`; restored missing imports after refactors
+- **Sign-in errors:** generic 401 message kept intentionally (no email enumeration)
+- **CI/deploy:** GitHub environment names had to match secrets (`FLY`, `SONAR`); Fly deploy tokens were initially wired to the wrong environment
+- **SonarCloud:** added config module tests and coverage exclusions so quality gate reflects backend tests only
+- **Reviewed and ran** lint, tests, and builds locally before committing; did not ship generated code unchecked
