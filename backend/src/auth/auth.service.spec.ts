@@ -198,7 +198,11 @@ describe('AuthService', () => {
     expect(response.cookie).toHaveBeenCalledWith(
       ACCESS_TOKEN_COOKIE,
       'signed-token',
-      expect.objectContaining({ secure: true, maxAge: 2 * 60 * 60 * 1000 }),
+      expect.objectContaining({
+        secure: true,
+        sameSite: 'none',
+        maxAge: 2 * 60 * 60 * 1000,
+      }),
     );
   });
 });

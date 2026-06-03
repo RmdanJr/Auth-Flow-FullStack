@@ -43,19 +43,29 @@ export class AuthService {
     const maxAge = this.parseExpiresInMs(expiresIn);
 
     response.cookie(ACCESS_TOKEN_COOKIE, token, {
-      httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
-      sameSite: 'lax',
+      ...this.getCookieOptions(),
       maxAge,
     });
   }
 
   clearAuthCookie(response: Response): void {
-    response.clearCookie(ACCESS_TOKEN_COOKIE, {
+    response.clearCookie(ACCESS_TOKEN_COOKIE, this.getCookieOptions());
+  }
+
+  private getCookieOptions(): {
+    httpOnly: boolean;
+    secure: boolean;
+    sameSite: 'lax' | 'none';
+  } {
+    const isProduction =
+      this.configService.get<string>('NODE_ENV') === 'production';
+
+    return {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
-      sameSite: 'lax',
-    });
+      secure: isProduction,
+      // Cross-origin SPA (web.fly.dev → api.fly.dev) requires SameSite=None.
+      sameSite: isProduction ? 'none' : 'lax',
+    };
   }
 
   async signup(dto: SignupDto, response: Response): Promise<UserResponseDto> {

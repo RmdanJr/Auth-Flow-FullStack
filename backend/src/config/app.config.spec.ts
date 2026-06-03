@@ -10,10 +10,12 @@ jest.mock('./swagger.config', () => ({
 describe('configureApp', () => {
   it('registers global middleware, pipes, filters, cors, and swagger', () => {
     const configService = {
+      get: jest.fn().mockReturnValue(undefined),
       getOrThrow: jest.fn().mockReturnValue('http://localhost:5173'),
     };
     const app = {
       get: jest.fn().mockReturnValue(configService),
+      set: jest.fn(),
       use: jest.fn(),
       useGlobalPipes: jest.fn(),
       useGlobalFilters: jest.fn(),
