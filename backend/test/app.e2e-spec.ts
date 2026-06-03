@@ -52,7 +52,7 @@ describe('Auth Flow (e2e)', () => {
 
     const meResponse = await agent.get('/users/me');
     expect(meResponse.status).toBe(200);
-    expect(meResponse.body.email).toBe('e2e@example.com');
+    expect(meResponse.body).toMatchObject({ email: 'e2e@example.com' });
   });
 
   it('GET /users/me without cookie returns 401', async () => {
@@ -67,8 +67,13 @@ describe('Auth Flow (e2e)', () => {
       password: 'Secure1!',
     };
 
-    await request(app.getHttpServer()).post('/auth/signup').send(payload).expect(201);
-    const duplicate = await request(app.getHttpServer()).post('/auth/signup').send(payload);
+    await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send(payload)
+      .expect(201);
+    const duplicate = await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send(payload);
     expect(duplicate.status).toBe(409);
   });
 });
