@@ -7,7 +7,9 @@ import { User, UserDocument } from './schemas/user.schema';
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+  ) {}
 
   async create(
     data: Pick<User, 'email' | 'name' | 'password'>,

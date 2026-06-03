@@ -9,7 +9,12 @@ interface AuthLayoutProps {
   footer?: ReactNode;
 }
 
-export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
+export function AuthLayout({
+  title,
+  subtitle,
+  children,
+  footer,
+}: Readonly<AuthLayoutProps>) {
   return (
     <div className="app-shell min-h-screen bg-[#f5f7fb]">
       <AppHeader />

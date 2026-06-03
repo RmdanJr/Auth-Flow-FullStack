@@ -2,7 +2,7 @@ interface LoadingScreenProps {
   message?: string;
 }
 
-export function LoadingScreen({ message = 'Loading...' }: LoadingScreenProps) {
+export function LoadingScreen({ message = 'Loading...' }: Readonly<LoadingScreenProps>) {
   return (
     <div className="app-shell flex min-h-screen items-center justify-center bg-[#f5f7fb]">
       <div className="flex flex-col items-center gap-5">

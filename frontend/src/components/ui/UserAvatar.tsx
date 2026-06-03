@@ -2,7 +2,7 @@ interface UserAvatarProps {
   name: string;
 }
 
-export function UserAvatar({ name }: UserAvatarProps) {
+export function UserAvatar({ name }: Readonly<UserAvatarProps>) {
   const initial = name.trim().charAt(0).toUpperCase() || '?';
 
   return (

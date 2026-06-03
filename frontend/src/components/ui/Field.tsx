@@ -6,7 +6,7 @@ interface FieldProps {
   children: ReactNode;
 }
 
-export function Field({ label, error, children }: FieldProps) {
+export function Field({ label, error, children }: Readonly<FieldProps>) {
   return (
     <div className="space-y-2">
       <label className="block text-xs font-semibold tracking-wide text-[#848fa3]">

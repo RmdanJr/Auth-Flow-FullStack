@@ -21,9 +21,9 @@ export class AuthService {
   private readonly bcryptRounds = 12;
 
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
-    private configService: ConfigService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async hashPassword(password: string): Promise<string> {

@@ -2,7 +2,7 @@ interface EasygeneratorLogoProps {
   className?: string;
 }
 
-export function EasygeneratorLogo({ className = '' }: EasygeneratorLogoProps) {
+export function EasygeneratorLogo({ className = '' }: Readonly<EasygeneratorLogoProps>) {
   return (
     <span className={`inline-flex items-center ${className}`}>
       <img
