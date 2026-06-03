@@ -30,7 +30,7 @@ export function SignUpPage() {
     setApiError(null);
     try {
       await signup(data);
-      navigate('/app');
+      navigate('/signin', { state: { registered: true } });
     } catch (error) {
       setApiError(getApiErrorMessage(error, 'Unable to create account. Please try again.'));
     }

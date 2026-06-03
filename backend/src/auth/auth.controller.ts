@@ -29,11 +29,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new user' })
   @ApiCreatedResponse({ type: UserResponseDto })
   @ApiConflictResponse({ description: 'Email already registered' })
-  async signup(
-    @Body() dto: SignupDto,
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<UserResponseDto> {
-    return this.authService.signup(dto, response);
+  async signup(@Body() dto: SignupDto): Promise<UserResponseDto> {
+    return this.authService.signup(dto);
   }
 
   @Post('signin')

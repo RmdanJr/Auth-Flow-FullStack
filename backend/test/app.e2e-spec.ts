@@ -40,7 +40,7 @@ describe('Auth Flow (e2e)', () => {
     await app.close();
   });
 
-  it('POST /auth/signup then GET /users/me with cookie', async () => {
+  it('POST /auth/signup creates user without session, signin grants access', async () => {
     const email = uniqueEmail('e2e');
     const agent = request.agent(app.getHttpServer());
 
@@ -54,6 +54,13 @@ describe('Auth Flow (e2e)', () => {
     expect(signupResponse.body).toMatchObject({
       email,
       name: 'E2E User',
+    });
+
+    await agent.get('/users/me').expect(401);
+
+    await agent.post('/auth/signin').send({
+      email,
+      password: 'Secure1!',
     });
 
     const meResponse = await agent.get('/users/me');
@@ -98,11 +105,17 @@ describe('Auth Flow (e2e)', () => {
   });
 
   it('POST /auth/logout clears session', async () => {
+    const email = uniqueEmail('logout');
     const agent = request.agent(app.getHttpServer());
 
     await agent.post('/auth/signup').send({
-      email: uniqueEmail('logout'),
+      email,
       name: 'Logout User',
+      password: 'Secure1!',
+    });
+
+    await agent.post('/auth/signin').send({
+      email,
       password: 'Secure1!',
     });
 

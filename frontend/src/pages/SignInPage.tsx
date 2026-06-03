@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signin } from '../api/auth';
@@ -8,6 +8,7 @@ import { Field } from '../components/ui/Field';
 import { getApiErrorMessage } from '../lib/apiError';
 import {
   alertErrorClassName,
+  alertSuccessClassName,
   buttonClassName,
   inputClassName,
   linkClassName,
@@ -16,6 +17,8 @@ import { signinSchema, type SigninFormData } from '../lib/validation';
 
 export function SignInPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const registered = (location.state as { registered?: boolean } | null)?.registered;
   const [apiError, setApiError] = useState<string | null>(null);
 
   const {
@@ -67,6 +70,12 @@ export function SignInPage() {
             {...register('password')}
           />
         </Field>
+
+        {registered && (
+          <div className={alertSuccessClassName}>
+            Account created. Sign in to continue.
+          </div>
+        )}
 
         {apiError && <div className={alertErrorClassName}>{apiError}</div>}
 

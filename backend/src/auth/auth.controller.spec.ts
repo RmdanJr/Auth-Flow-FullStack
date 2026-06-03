@@ -28,12 +28,11 @@ describe('AuthController', () => {
       name: 'Jane',
       password: 'Secure1!',
     };
-    const response = { cookie: jest.fn() } as never;
     authServiceMock.signup.mockResolvedValue({ id: '1', ...dto });
 
-    await controller.signup(dto, response);
+    await controller.signup(dto);
 
-    expect(authServiceMock.signup).toHaveBeenCalledWith(dto, response);
+    expect(authServiceMock.signup).toHaveBeenCalledWith(dto);
   });
 
   it('delegates signin to AuthService', async () => {

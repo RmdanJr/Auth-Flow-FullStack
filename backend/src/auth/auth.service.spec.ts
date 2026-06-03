@@ -75,7 +75,7 @@ describe('AuthService', () => {
     });
   });
 
-  it('registers a new user and sets auth cookie', async () => {
+  it('registers a new user without setting auth cookie', async () => {
     usersServiceMock.findByEmail.mockResolvedValue(null);
     usersServiceMock.create.mockResolvedValue({
       _id: { toString: () => 'user-id' },
@@ -83,11 +83,11 @@ describe('AuthService', () => {
       name: 'Jane',
     });
 
-    const response = createResponse();
-    const result = await authService.signup(
-      { email: 'User@Example.com', name: 'Jane', password: 'Secure1!' },
-      response as never,
-    );
+    const result = await authService.signup({
+      email: 'User@Example.com',
+      name: 'Jane',
+      password: 'Secure1!',
+    });
 
     expect(result).toEqual({
       id: 'user-id',
@@ -97,11 +97,7 @@ describe('AuthService', () => {
     expect(usersServiceMock.create).toHaveBeenCalledWith(
       expect.objectContaining({ email: 'user@example.com', name: 'Jane' }),
     );
-    expect(response.cookie).toHaveBeenCalledWith(
-      ACCESS_TOKEN_COOKIE,
-      'signed-token',
-      expect.objectContaining({ httpOnly: true, sameSite: 'lax' }),
-    );
+    expect(jwtServiceMock.sign).not.toHaveBeenCalled();
   });
 
   it('rejects signup when email is already registered', async () => {
@@ -110,10 +106,11 @@ describe('AuthService', () => {
     });
 
     await expect(
-      authService.signup(
-        { email: 'user@example.com', name: 'Jane', password: 'Secure1!' },
-        createResponse() as never,
-      ),
+      authService.signup({
+        email: 'user@example.com',
+        name: 'Jane',
+        password: 'Secure1!',
+      }),
     ).rejects.toThrow(ConflictException);
   });
 
@@ -175,23 +172,24 @@ describe('AuthService', () => {
     );
   });
 
-  it('sets secure cookie in production', async () => {
+  it('sets secure cookie in production on signin', async () => {
     configServiceMock.get.mockImplementation((key: string) => {
       if (key === 'NODE_ENV') return 'production';
       if (key === 'JWT_EXPIRES_IN') return '2h';
       return undefined;
     });
 
-    usersServiceMock.findByEmail.mockResolvedValue(null);
-    usersServiceMock.create.mockResolvedValue({
+    const passwordHash = await bcrypt.hash('Secure1!', 12);
+    usersServiceMock.findByEmailWithPassword.mockResolvedValue({
       _id: { toString: () => 'user-id' },
       email: 'user@example.com',
       name: 'Jane',
+      password: passwordHash,
     });
 
     const response = createResponse();
-    await authService.signup(
-      { email: 'user@example.com', name: 'Jane', password: 'Secure1!' },
+    await authService.signin(
+      { email: 'user@example.com', password: 'Secure1!' },
       response as never,
     );
 

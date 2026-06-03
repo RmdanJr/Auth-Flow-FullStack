@@ -68,7 +68,7 @@ export class AuthService {
     };
   }
 
-  async signup(dto: SignupDto, response: Response): Promise<UserResponseDto> {
+  async signup(dto: SignupDto): Promise<UserResponseDto> {
     this.logger.log(`Signup attempt for ${dto.email}`);
 
     const existing = await this.usersService.findByEmail(dto.email);
@@ -82,12 +82,6 @@ export class AuthService {
       name: dto.name,
       password: hashedPassword,
     });
-
-    const token = this.signToken({
-      sub: user._id.toString(),
-      email: user.email,
-    });
-    this.setAuthCookie(response, token);
 
     this.logger.log(`Signup successful for ${dto.email}`);
     return this.toUserResponse(user._id.toString(), user.email, user.name);

@@ -12,3 +12,6 @@ export const linkClassName =
 
 export const alertErrorClassName =
   'rounded-xl border border-[#b3261e]/25 bg-[#b3261e]/[0.06] px-4 py-3 text-sm text-[#b3261e]';
+
+export const alertSuccessClassName =
+  'rounded-xl border border-[#1e7e34]/25 bg-[#1e7e34]/[0.06] px-4 py-3 text-sm text-[#1e7e34]';
