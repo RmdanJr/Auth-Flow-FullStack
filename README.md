@@ -120,7 +120,7 @@ fly deploy --build-arg VITE_API_URL=https://auth-flow-api.fly.dev
 
 **GitHub Actions CD**
 
-Add these to **Settings → Environments → production → Environment secrets**:
+Add these to **Settings → Environments → FLY → Environment secrets**:
 
 | Secret | Fly app | Where to get it |
 |--------|---------|-----------------|
