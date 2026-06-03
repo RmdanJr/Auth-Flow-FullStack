@@ -89,7 +89,62 @@ GitHub Actions runs on push to `main` and on all pull requests:
 - **frontend** — lint, build
 - **sonarcloud** — SonarCloud analysis + quality gate (requires `SONAR_TOKEN`)
 
-![CI](https://github.com/YOUR_USER/auth-flow-fullstack/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/RmdanJr/Auth-Flow-FullStack/actions/workflows/ci.yml/badge.svg)
+
+## Deployment (automatic CD)
+
+After CI passes on `main`, the **Deploy** workflow runs automatically:
+
+1. Builds Docker images for backend + frontend
+2. Pushes them to **GitHub Container Registry** (`ghcr.io`)
+3. Triggers redeploy on **Render** or **Railway** (if configured)
+
+### Option A — Render (recommended, free tier)
+
+1. Create a free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cluster and copy the connection string.
+2. Go to [Render Blueprints](https://dashboard.render.com/blueprints) → **New Blueprint Instance**.
+3. Connect this GitHub repo — Render reads [`render.yaml`](render.yaml) and creates:
+   - `auth-flow-api` — NestJS backend (Docker)
+   - `auth-flow-web` — React frontend (static site)
+4. When prompted, set `MONGODB_URI` to your Atlas connection string.
+5. Render auto-deploys on every push to `main`.
+
+Optional: add **Deploy Hook** URLs as GitHub secrets (`RENDER_BACKEND_DEPLOY_HOOK`, `RENDER_FRONTEND_DEPLOY_HOOK`) in the **production** environment for instant redeploy from the Deploy workflow.
+
+### Option B — Railway
+
+1. Create a [Railway](https://railway.app) project from this repo.
+2. Add a **MongoDB** plugin and wire `MONGODB_URI` to the backend service.
+3. Add GitHub secrets to the **production** environment:
+   - `RAILWAY_TOKEN` — from Railway account settings
+4. Add repository variable `RAILWAY_SERVICE_ID` (backend service ID).
+5. Push to `main` — Deploy workflow redeploys via Railway CLI.
+
+### Option C — Any Docker host
+
+Pull and run images from GHCR after each deploy:
+
+```bash
+docker pull ghcr.io/rmdanjr/auth-flow-backend:latest
+docker pull ghcr.io/rmdanjr/auth-flow-frontend:latest
+```
+
+Set `VITE_API_URL` repository variable (Settings → Variables) so the frontend image bakes in the correct API URL at build time.
+
+### Production environment (GitHub)
+
+Create **Settings → Environments → production** with optional secrets:
+
+| Secret | Used for |
+|--------|----------|
+| `RENDER_BACKEND_DEPLOY_HOOK` | Render backend redeploy |
+| `RENDER_FRONTEND_DEPLOY_HOOK` | Render frontend redeploy |
+| `RAILWAY_TOKEN` | Railway redeploy |
+
+| Variable | Used for |
+|----------|----------|
+| `VITE_API_URL` | Frontend Docker build (e.g. `https://auth-flow-api.onrender.com`) |
+| `RAILWAY_SERVICE_ID` | Railway service to deploy |
 
 ## Branch protection
 
@@ -120,7 +175,10 @@ auth-flow-fullstack/
 ├── backend/          NestJS API
 ├── frontend/         React + Vite app
 ├── docker-compose.yml
-├── .github/workflows/ci.yml
+├── .github/workflows/
+│   ├── ci.yml          # Test + SonarCloud
+│   └── deploy.yml      # CD after CI on main
+├── render.yaml         # Render Blueprint (auto-deploy)
 └── sonar-project.properties
 ```
 
